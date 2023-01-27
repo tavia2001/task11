@@ -1,0 +1,46 @@
+import json
+from tkinter import *
+import requests
+from tkinter import messagebox
+
+def get_data():
+    '''
+    сбор данных с github по REST API
+    :return:
+    '''
+    try:
+        repo_name = textbox.get()# 'https://github.com/Microsoft/vscode'#e1.get()
+        username = repo_name.split('/')[-2]
+        url = f"https://api.github.com/users/{username}"
+        all_user_data = requests.get(url).json()
+        user_data = dict()
+        user_data['company'] = all_user_data['company']
+        user_data['created_at'] = all_user_data['created_at']
+        user_data['email'] = all_user_data['email']
+        user_data['id'] = all_user_data['id']
+        user_data['name'] = all_user_data['name']
+        user_data['url'] = all_user_data['url']
+
+        print(user_data)
+        with open(f'{username}.json', 'w', encoding='utf8') as json_file:
+            json.dump(user_data, json_file, indent=4)
+        message = f'Данные сохранены в файл: {username}.json'
+        print(message)
+        messagebox.showinfo(title='GitHub REST API', message=message)
+    except Exception as e:
+        messagebox.showerror(title='Ошибка', message='Что то пошло не так! Проверьте корректность ссылки на репозиторий!')
+        print(e)
+
+win = Tk()
+win.title("GitHub Rest API")
+
+win.geometry("350x110")
+label = Label(win, text="Репозиторий (ссылка):")
+label.pack(pady=5)
+textbox = Entry(win, bg="white", width=50, borderwidth=2)
+textbox.insert(0, 'https://github.com/Microsoft/vscode')# вставляем нужную ссылку сразу
+textbox.pack(pady=5)
+btn = Button(text="Получить данные", command=get_data)
+btn.pack(pady=5)
+
+win.mainloop()
